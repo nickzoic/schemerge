@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:schemerge:metaschema:1",
+  "title": "schemerge supported JSON Schema subset",
+  "description": "A Schema S accepted by schemerge must validate against this metaschema. It is a strict subset of JSON Schema draft 2020-12: every keyword not listed here (if/then/else, prefixItems, contains, propertyNames, unevaluated*, $anchor, $dynamicRef, format, ...) is rejected, and $ref must be a local reference ('#' or '#/json/pointer'). This metaschema is itself written in the subset, so it validates against itself.",
+  "$ref": "#/$defs/schema",
+  "$defs": {
+    "schema": {
+      "type": ["object", "boolean"],
+      "properties": {
+        "$schema": {"type": "string"},
+        "$id": {"type": "string"},
+        "$comment": {"type": "string"},
+        "$ref": {"type": "string", "pattern": "^#(/.*)?$"},
+        "$defs": {"$ref": "#/$defs/schemaMap"},
+        "definitions": {"$ref": "#/$defs/schemaMap"},
+
+        "title": {"type": "string"},
+        "description": {"type": "string"},
+        "default": true,
+        "examples": {"type": "array"},
+        "deprecated": {"type": "boolean"},
+        "readOnly": {"type": "boolean"},
+        "writeOnly": {"type": "boolean"},
+
+        "type": {
+          "anyOf": [
+            {"$ref": "#/$defs/typeName"},
+            {"type": "array", "items": {"$ref": "#/$defs/typeName"}, "minItems": 1, "uniqueItems": true}
+          ]
+        },
+        "enum": {"type": "array"},
+        "const": true,
+
+        "multipleOf": {"type": "number", "exclusiveMinimum": 0},
+        "minimum": {"type": "number"},
+        "maximum": {"type": "number"},
+        "exclusiveMinimum": {"type": "number"},
+        "exclusiveMaximum": {"type": "number"},
+
+        "minLength": {"$ref": "#/$defs/count"},
+        "maxLength": {"$ref": "#/$defs/count"},
+        "pattern": {"type": "string"},
+
+        "items": {"$ref": "#/$defs/schema"},
+        "minItems": {"$ref": "#/$defs/count"},
+        "maxItems": {"$ref": "#/$defs/count"},
+        "uniqueItems": {"type": "boolean"},
+
+        "properties": {"$ref": "#/$defs/schemaMap"},
+        "patternProperties": {"$ref": "#/$defs/schemaMap"},
+        "additionalProperties": {"$ref": "#/$defs/schema"},
+        "required": {"$ref": "#/$defs/stringSet"},
+        "dependentRequired": {"type": "object", "additionalProperties": {"$ref": "#/$defs/stringSet"}},
+        "minProperties": {"$ref": "#/$defs/count"},
+        "maxProperties": {"$ref": "#/$defs/count"},
+
+        "allOf": {"$ref": "#/$defs/schemaList"},
+        "anyOf": {"$ref": "#/$defs/schemaList"},
+        "oneOf": {"$ref": "#/$defs/schemaList"},
+        "not": {"$ref": "#/$defs/schema"}
+      },
+      "additionalProperties": false
+    },
+    "schemaMap": {"type": "object", "additionalProperties": {"$ref": "#/$defs/schema"}},
+    "schemaList": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/schema"}},
+    "typeName": {"enum": ["null", "boolean", "integer", "number", "string", "array", "object"]},
+    "count": {"type": "integer", "minimum": 0},
+    "stringSet": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}
