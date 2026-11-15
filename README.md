@@ -1,5 +1,7 @@
 # schemerge
 
+[![tests](https://github.com/nickzoic/schemerge/actions/workflows/tests.yml/badge.svg)](https://github.com/nickzoic/schemerge/actions/workflows/tests.yml)
+
 Schema-aware structural diff and N-way merge of JSON documents.
 
 Given a JSON Schema **S**, an initial Document valid in S, and any number of
@@ -279,6 +281,11 @@ object key order is irrelevant).
 pip install "pytest>=7" "jsonschema>=4.18"
 pytest
 ```
+
+GitHub Actions ([`.github/workflows/tests.yml`](.github/workflows/tests.yml))
+runs the suite on every push and pull request, on Python 3.9 to 3.14, then
+installs the package and smoke-tests the `schemerge` command. A separate job
+runs without `jsonschema` to check that the cross-checks skip cleanly.
 
 The cross-checks against `jsonschema` are skipped if it is not installed. The
 metaschema cross-check is skipped on jsonschema ≤ 4.17: its legacy
