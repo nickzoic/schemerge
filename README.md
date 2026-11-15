@@ -283,9 +283,8 @@ pytest
 ```
 
 GitHub Actions ([`.github/workflows/tests.yml`](.github/workflows/tests.yml))
-runs the suite on every push and pull request, on Python 3.9 to 3.14, then
-installs the package and smoke-tests the `schemerge` command. A separate job
-runs without `jsonschema` to check that the cross-checks skip cleanly.
+runs the suite on every push and pull request, on Python 3.10 to 3.14, then
+installs the package and smoke-tests the `schemerge` command.
 
 The cross-checks against `jsonschema` are skipped if it is not installed. The
 metaschema cross-check is skipped on jsonschema ≤ 4.17: its legacy
