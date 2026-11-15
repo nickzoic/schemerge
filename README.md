@@ -5,7 +5,13 @@ Schema-aware structural diff and N-way merge of JSON documents.
 Given a JSON Schema **S**, an initial Document valid in S, and any number of
 modified versions (each valid in S), `schemerge` encodes each version's
 differences from the initial Document and combines them into one new Document
-that is **guaranteed to be valid in S**. Elements may be inserted, modified,
+that is **guaranteed to be valid in S**.
+
+To make this possible, schema S must be valid in the included
+[metaschema](schemerge/metaschema.json) which is itself
+valid in, and a subset of, the [JSON schema metaschema](https://json-schema.org/specification).
+
+Elements may be inserted, modified,
 deleted or moved anywhere in the Document; edits follow Elements to wherever
 they were moved, and changes that would break the schema are bubbled up to
 parent Elements.
@@ -13,6 +19,36 @@ parent Elements.
 No runtime dependencies (Python ≥ 3.9). `pytest` and, optionally,
 `jsonschema` ≥ 4.18 (used only to cross-check the validator) are needed for
 the tests.
+
+## Origin
+
+This is an idea I've been working on on-and-off for literally years which I ended
+up handing to Claude as an exercise to see how that worked, and to my great
+surprise it worked very quickly.
+
+The inital prompt was:
+
+> A Document is a deserialized JSON document.
+> An Element is an Object, Array or Scalar in a Document.
+> A Schema is a Document which is a valid JSON schema.
+> Write a Python package containing a class which can take a Schema S in its constructor.
+> Write a method to accept an initial Document which is valid in S.
+> Write a method to accept further documents, also valid in S, which are modified versions of the initial document and encode their differences from it.
+> Write a method to combine the encoded differences into a new document which is valid in S.
+> Elements may have been inserted, modifed, deleted or moved within the Document.
+> Differences may be reordered to ensure that information isn't lost.
+> Changes which would result in schema violations should be "bubbled up" to parent Elements to ensure the output is still valid in S.
+> Only a subset of JSON Schema needs to be supported. External references do not need to be supported.
+> Write a metaschema which describes the subset of JSON schema for which this code will work.  The schema S should be checked against this metaschema.
+> Write many test cases illustrating the range of situations this code is able to address.
+
+... and I later added:
+
+> When a scalar element is changed in multiple differences treat that as a deletion and insertion and keep both new values though, where that is allowed by the schema.
+
+## License
+
+[CC0](LICENSE)
 
 ## Quick start
 
