@@ -78,6 +78,50 @@ merger.merge()        # {'todo': [], 'done': [{'title': 'write', 'prio': 5}]}
 `merge_report()` returns a `MergeResult` with the `document`, the `conflicts`
 that were resolved and the schema violations that were `bubbled` up.
 
+## Command line
+
+Installing the package (`pip install .`) provides a `schemerge` command;
+`python -m schemerge` works too.
+
+```
+schemerge BASE VERSION [VERSION ...] [-s SCHEMA] [-o OUTPUT] [options]
+```
+
+`BASE` and each `VERSION` are JSON files (`-` reads one of them from standard
+input). Versions are listed lowest priority first. The merged document is
+written as JSON to `OUTPUT` (atomically, so a failed run never leaves a
+partial file) or to standard output. Without `--schema` the boolean schema
+`true` is used: it is valid in the metaschema and accepts every document.
+
+```console
+$ schemerge base.json alice.json bob.json -o merged.json
+schemerge: merged 2 version(s): 1 conflict(s) resolved, 0 schema violation(s) bubbled up
+  value conflict at /tags/1 [alice.json, bob.json]: kept every value: the item was deleted and each new value inserted ["X", "Y"]
+
+$ schemerge -s schema.json base.json alice.json bob.json --compact --strict
+{"todo":[],"done":[{"title":"write","prio":5}],"tags":["a","Y"]}
+schemerge: merged 2 version(s): 1 conflict(s) resolved, 0 schema violation(s) bubbled up
+  value conflict at /tags/1 [alice.json, bob.json]: value from bob.json used (keeping every value would violate the schema)
+```
+
+| Option | |
+|---|---|
+| `-s`, `--schema SCHEMA` | JSON Schema (in the supported subset) every input must be valid in. |
+| `-o`, `--output OUTPUT` | Where to write the merged document (default: standard output). |
+| `--report FILE` | Also write a JSON report of the conflicts and bubbled-up violations. |
+| `--on-delete-conflict keep\|delete` | Element removed by one version but changed by another (default `keep`). |
+| `--on-value-conflict keep\|latest` | Scalar array item changed differently by several versions (default `keep`). |
+| `--similarity-threshold X` | Minimum similarity (0..1) for matching modified array items (default 0.5). |
+| `--indent N`, `--compact`, `--sort-keys` | Output layout (default: indent 2, keys in merge order). |
+| `--strict` | Exit with status 1 if anything had to be resolved (the output is still written). |
+| `-q`, `--quiet` | No summary on standard error. |
+
+Input must be strict JSON in UTF-8: `NaN`/`Infinity` and duplicate object keys
+are rejected. Exit status is 0 on success, 1 with `--strict` when conflicts or
+violations were resolved, and 2 for errors (unreadable or invalid JSON, a
+schema outside the subset, an input not valid in the schema); errors name the
+offending file and list the schema issues.
+
 ## API
 
 | | |
@@ -248,4 +292,5 @@ diffs and random diff round-trips, more than fifty hand-written merge
 scenarios, schema-bubbling scenarios, value-conflict scenarios, API behaviour, and randomised merge
 properties (single-version reproduction, idempotence, disjoint edits combine
 exactly, validity under a constrained schema for both delete policies, and
-validity when conflicting array values are kept under array constraints).
+validity when conflicting array values are kept under array constraints),
+and the command line tool.

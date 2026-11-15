@@ -13,6 +13,9 @@ dependencies = []
 [project.optional-dependencies]
 test = ["pytest>=7", "jsonschema>=4.18"]
 
+[project.scripts]
+schemerge = "schemerge.cli:main"
+
 [tool.setuptools]
 packages = ["schemerge"]
 
